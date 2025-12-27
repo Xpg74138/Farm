@@ -44,7 +44,7 @@ export class FarmerGamePage {
     this.marketState = {
       porkPrice: 20,
       feedPrice: 5,
-      demand: 50
+      pigletPrice: 250
     };
     
     this.events = [];
@@ -153,8 +153,8 @@ export class FarmerGamePage {
     // 饲料价格
     marketContent.appendChild(this.createStatItem('饲料价格', `¥${this.marketState.feedPrice}/单位`));
     
-    // 市场需求
-    marketContent.appendChild(this.createStatItem('市场需求', `${this.marketState.demand}`));
+    // 仔猪价格
+    marketContent.appendChild(this.createStatItem('仔猪价格', `¥${this.marketState.pigletPrice}/只`));
     
     marketPanel.appendChild(marketContent);
     contentArea.appendChild(marketPanel);
@@ -206,8 +206,7 @@ export class FarmerGamePage {
   private calculateMaxBuyPig(): number {
     const totalPigs = this.farmerState.fatteningPigs + this.farmerState.readyPigs;
     const availableSpace = this.farmerState.maxPigs - totalPigs;
-    const pigletPrice = this.marketState.porkPrice * 10;
-    const maxAffordable = Math.floor(this.farmerState.money / pigletPrice);
+    const maxAffordable = Math.floor(this.farmerState.money / this.marketState.pigletPrice);
     return Math.max(0, Math.min(availableSpace, maxAffordable));
   }
 
@@ -398,7 +397,43 @@ export class FarmerGamePage {
     eventDesc.textContent = description;
     eventItem.appendChild(eventDesc);
     
+    // 事件效果（如果有金钱影响）
+    const effectText = this.getEventEffectText(title);
+    if (effectText) {
+      const effectEl = document.createElement('p');
+      effectEl.style.fontSize = '12px';
+      effectEl.style.fontWeight = 'bold';
+      effectEl.style.marginTop = '5px';
+      effectEl.style.color = effectText.includes('增加') ? '#2E8B57' : '#DC143C';
+      effectEl.textContent = effectText;
+      eventItem.appendChild(effectEl);
+    }
+    
     return eventItem;
+  }
+  
+  // 获取事件效果文本
+  private getEventEffectText(title: string): string {
+    switch (title) {
+      case '市场需求上升':
+        return '金钱增加：+¥100';
+      case '饲料价格波动':
+        return '金钱减少：-¥50';
+      case '猪群健康问题':
+        return '金钱减少：-¥100，饲料减少：-20单位，育肥猪减少：-1头';
+      case '政府补贴':
+        return '金钱增加：+¥200';
+      case '技术培训':
+        return '金钱减少：-¥50，育肥猪增加：+1头';
+      case '新客户订单':
+        return '金钱增加：+¥300';
+      case '设备损坏':
+        return '金钱减少：-¥150';
+      case '饲料丰收':
+        return '饲料增加：+30单位，金钱减少：-¥50';
+      default:
+        return '';
+    }
   }
 
   // 创建状态项

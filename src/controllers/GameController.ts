@@ -52,16 +52,15 @@ export class GameController {
     this.router.registerRoute('farmer-game', this.farmerGamePage.getElement());
     this.router.registerRoute('settings', this.settingsPage.getElement());
     
-    // 初始化路由
-    this.router.init();
-    
-    // 加载自动存档
+    // 加载自动存档（但不自动导航）
     const autoSave = SaveService.loadAutoSave();
     if (autoSave) {
       this.gameState.loadState(autoSave);
-      this.router.navigate('farmer-game');
       this.updateGameUI();
     }
+    
+    // 初始化路由（根据URL hash或默认值导航）
+    this.router.init();
     
     // 设置自动保存（每30秒）
     this.autoSaveInterval = window.setInterval(() => {

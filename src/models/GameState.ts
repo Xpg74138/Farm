@@ -73,9 +73,8 @@ export class GameState {
   }
 
   farmerBuyPig(amount: number): boolean {
-    // 猪仔价格基于当前市场价格
-    const porkPrice = this.market.getState().porkPrice;
-    const pigletPrice = porkPrice * 10;
+    // 猪仔价格使用市场中的pigletPrice
+    const pigletPrice = this.market.getState().pigletPrice;
     return this.farmer.buyPig(amount, pigletPrice);
   }
 

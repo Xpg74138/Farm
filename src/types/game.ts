@@ -11,6 +11,14 @@ export interface PigState {
   isAlive: boolean;    // 是否存活
 }
 
+// 猪个体类型
+export interface Pig {
+  id: string;
+  weight: number;      // 当前体重（kg）
+  daysOld: number;     // 天数
+  isReadyForSale: boolean; // 是否可出栏（体重 >= 150kg）
+}
+
 // 养猪人的状态类型
 export interface FarmerState {
   money: number;           // 金钱
@@ -25,7 +33,7 @@ export interface FarmerState {
 export interface MarketState {
   porkPrice: number;   // 猪肉价格（元/kg）
   feedPrice: number;   // 饲料价格（元/单位）
-  demand: number;      // 需求指数 0-100
+  pigletPrice: number; // 仔猪价格（元/只）
 }
 
 // 事件类型
