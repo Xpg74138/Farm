@@ -35,7 +35,8 @@ export class GameController {
       (amount: number) => this.handleFarmerAction('buyPig', amount),
       () => this.handleFarmerAction('upgradePen'),
       () => this.nextDay(),
-      () => this.router.navigate('start')
+      () => this.router.navigate('start'),
+      (eventId: string) => this.resolveEvent(eventId)
     );
     
     this.settingsPage = new SettingsPage(
@@ -134,6 +135,15 @@ export class GameController {
     this.updateGameUI();
   }
 
+  // 解决事件
+  private resolveEvent(eventId: string): void {
+    const success = this.gameState.resolveEvent(eventId);
+    if (success) {
+      this.updateGameUI();
+      this.autoSave();
+    }
+  }
+
   // 自动保存
   private autoSave(): void {
     const state = this.gameState.getState();
@@ -145,8 +155,6 @@ export class GameController {
     const state = this.gameState.getState();
     this.farmerGamePage.updateState(state.farmerState, state.marketState, state.events, state.day);
   }
-
-
 
   // 销毁游戏控制器
   destroy(): void {

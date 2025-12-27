@@ -9,6 +9,7 @@ export class FarmerGamePage {
   private onUpgradePen: () => void;
   private onNextDay: () => void;
   private onBack: () => void;
+  private onResolveEvent: (eventId: string) => void;
   private farmerState: FarmerState;
   private marketState: MarketState;
   private events: GameEventData[];
@@ -20,7 +21,8 @@ export class FarmerGamePage {
     onBuyPig: (amount: number) => void, 
     onUpgradePen: () => void, 
     onNextDay: () => void,
-    onBack: () => void
+    onBack: () => void,
+    onResolveEvent: (eventId: string) => void
   ) {
     this.element = document.createElement('div');
     this.element.className = 'page farmer-game-page';
@@ -30,12 +32,13 @@ export class FarmerGamePage {
     this.onUpgradePen = onUpgradePen;
     this.onNextDay = onNextDay;
     this.onBack = onBack;
+    this.onResolveEvent = onResolveEvent;
     
     // 初始状态
     this.farmerState = {
       money: 1000,
       feedStock: 50,
-      feedConsumption: 0,
+      feedConsumption: 4, // 初始2头育肥猪，每头2单位饲料
       fatteningPigs: 2,
       readyPigs: 0,
       maxPigs: 5
@@ -345,11 +348,7 @@ export class FarmerGamePage {
       } else {
         // 显示事件
         todayEvents.forEach(event => {
-          const eventItem = this.createEventItem(
-            event.title,
-            event.description,
-            event.type
-          );
+          const eventItem = this.createEventItem(event);
           eventList.appendChild(eventItem);
         });
       }
@@ -361,17 +360,19 @@ export class FarmerGamePage {
   }
 
   // 创建事件项
-  private createEventItem(title: string, description: string, type: 'info' | 'opportunity' | 'warning' | 'danger'): HTMLElement {
+  private createEventItem(event: GameEventData): HTMLElement {
     const eventItem = document.createElement('div');
-    eventItem.className = `event-item event-${type}`;
+    eventItem.className = `event-item event-${event.type} ${event.resolved ? 'resolved' : ''}`;
     eventItem.style.padding = '10px';
     eventItem.style.marginBottom = '10px';
     eventItem.style.borderRadius = '4px';
     eventItem.style.border = '2px solid #000';
     eventItem.style.backgroundColor = '#FFFACD';
+    eventItem.style.cursor = event.resolved ? 'default' : 'pointer';
+    eventItem.style.opacity = event.resolved ? '0.7' : '1';
     
     // 根据事件类型设置背景色
-    switch (type) {
+    switch (event.type) {
       case 'opportunity':
         eventItem.style.backgroundColor = '#98FB98';
         break;
@@ -388,17 +389,20 @@ export class FarmerGamePage {
     eventTitle.style.fontSize = '14px';
     eventTitle.style.fontWeight = 'bold';
     eventTitle.style.marginBottom = '5px';
-    eventTitle.textContent = title;
+    eventTitle.textContent = event.title;
+    if (event.resolved) {
+      eventTitle.textContent += ' (已解决)';
+    }
     eventItem.appendChild(eventTitle);
     
     // 事件描述
     const eventDesc = document.createElement('p');
     eventDesc.style.fontSize = '12px';
-    eventDesc.textContent = description;
+    eventDesc.textContent = event.description;
     eventItem.appendChild(eventDesc);
     
     // 事件效果（如果有金钱影响）
-    const effectText = this.getEventEffectText(title);
+    const effectText = this.getEventEffectText(event.title);
     if (effectText) {
       const effectEl = document.createElement('p');
       effectEl.style.fontSize = '12px';
@@ -407,6 +411,32 @@ export class FarmerGamePage {
       effectEl.style.color = effectText.includes('增加') ? '#2E8B57' : '#DC143C';
       effectEl.textContent = effectText;
       eventItem.appendChild(effectEl);
+    }
+    
+    // 添加解决按钮（如果事件未解决）
+    if (!event.resolved) {
+      const resolveButton = document.createElement('button');
+      resolveButton.textContent = '解决';
+      resolveButton.style.marginTop = '10px';
+      resolveButton.style.padding = '5px 10px';
+      resolveButton.style.fontSize = '12px';
+      resolveButton.style.border = '2px solid #000';
+      resolveButton.style.borderRadius = '4px';
+      resolveButton.style.backgroundColor = '#4CAF50';
+      resolveButton.style.color = 'white';
+      resolveButton.style.cursor = 'pointer';
+      resolveButton.onclick = (e) => {
+        e.stopPropagation();
+        this.onResolveEvent(event.id);
+      };
+      eventItem.appendChild(resolveButton);
+    }
+    
+    // 点击事件项也可以解决事件
+    if (!event.resolved) {
+      eventItem.onclick = () => {
+        this.onResolveEvent(event.id);
+      };
     }
     
     return eventItem;

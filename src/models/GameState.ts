@@ -90,7 +90,7 @@ export class GameState {
     this.farmer.passDay();
     this.market.updateMarket();
     
-    // 生成每日事件，但不自动处理，让玩家手动处理
+    // 生成每日事件
     this.generateDailyEvents();
   }
 
@@ -105,6 +105,34 @@ export class GameState {
   // 获取当前事件列表
   getEvents(): GameEventData[] {
     return this.state.events;
+  }
+  
+  // 解决事件并应用效果
+  resolveEvent(eventId: string): boolean {
+    const eventIndex = this.state.events.findIndex(e => e.id === eventId && !e.resolved);
+    if (eventIndex === -1) {
+      return false; // 事件不存在或已解决
+    }
+    
+    const event = this.state.events[eventIndex];
+    if (event.effect) {
+      // 应用事件效果
+      const effect = this.eventManager.applyEventEffect(event);
+      
+      // 更新农民状态
+      const farmerState = this.farmer.getState();
+      this.farmer.setState({
+        ...farmerState,
+        money: farmerState.money + effect.money,
+        feedStock: Math.max(0, farmerState.feedStock + effect.feedStock),
+        fatteningPigs: Math.max(0, farmerState.fatteningPigs + (effect.fatteningPigs || 0)),
+        readyPigs: Math.max(0, farmerState.readyPigs + (effect.readyPigs || 0))
+      });
+    }
+    
+    // 标记事件为已解决
+    this.state.events[eventIndex] = this.eventManager.resolveEvent(event);
+    return true;
   }
 
   // 设置游戏速度

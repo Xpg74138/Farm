@@ -13,12 +13,16 @@ export class Farmer {
 
   // 获取初始状态
   private getInitialState(): FarmerState {
+    const initialFatteningPigs = 2;
+    const initialReadyPigs = 0;
+    const initialTotalPigs = initialFatteningPigs + initialReadyPigs;
+    
     return {
       money: 1000,
       feedStock: 50,
-      feedConsumption: 0,
-      fatteningPigs: 2,
-      readyPigs: 0,
+      feedConsumption: initialTotalPigs * this.FEED_PER_PIG,
+      fatteningPigs: initialFatteningPigs,
+      readyPigs: initialReadyPigs,
       maxPigs: this.BASE_MAX_PIGS
     };
   }
