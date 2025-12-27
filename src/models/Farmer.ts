@@ -39,26 +39,26 @@ export class Farmer {
 
   // 购买饲料
   buyFeed(amount: number, price: number): boolean {
-    const totalCost = amount * price;
+    const totalCost = parseFloat((amount * price).toFixed(2));
     if (this.state.money < totalCost) {
       return false; // 资金不足
     }
     
-    this.state.money -= totalCost;
-    this.state.feedStock += amount;
+    this.state.money = parseFloat((this.state.money - totalCost).toFixed(2));
+    this.state.feedStock = parseFloat((this.state.feedStock + amount).toFixed(2));
     return true;
   }
 
   // 购买猪
   buyPig(amount: number, cost: number): boolean {
-    const totalCost = amount * cost;
+    const totalCost = parseFloat((amount * cost).toFixed(2));
     const totalPigs = this.state.fatteningPigs + this.state.readyPigs + amount;
     if (this.state.money < totalCost || totalPigs > this.state.maxPigs) {
       return false; // 资金不足或猪舍已满
     }
     
-    this.state.money -= totalCost;
-    this.state.fatteningPigs += amount;
+    this.state.money = parseFloat((this.state.money - totalCost).toFixed(2));
+    this.state.fatteningPigs = parseFloat((this.state.fatteningPigs + amount).toFixed(2));
     return true;
   }
 
@@ -68,9 +68,9 @@ export class Farmer {
       return false; // 可出栏猪数量不足
     }
     
-    const totalRevenue = amount * revenuePerPig;
-    this.state.money += totalRevenue;
-    this.state.readyPigs -= amount;
+    const totalRevenue = parseFloat((amount * revenuePerPig).toFixed(2));
+    this.state.money = parseFloat((this.state.money + totalRevenue).toFixed(2));
+    this.state.readyPigs = parseFloat((this.state.readyPigs - amount).toFixed(2));
     return true;
   }
 
@@ -80,8 +80,8 @@ export class Farmer {
       return false; // 资金不足
     }
     
-    this.state.money -= this.PEN_UPGRADE_COST;
-    this.state.maxPigs += this.PEN_UPGRADE_INCREASE;
+    this.state.money = parseFloat((this.state.money - this.PEN_UPGRADE_COST).toFixed(2));
+    this.state.maxPigs = parseFloat((this.state.maxPigs + this.PEN_UPGRADE_INCREASE).toFixed(2));
     return true;
   }
 
@@ -91,17 +91,19 @@ export class Farmer {
     const totalPigs = this.state.fatteningPigs + this.state.readyPigs;
     
     // 计算饲料消耗量（每猪每天2单位）
-    const feedConsumption = Math.min(this.state.feedStock, totalPigs * this.FEED_PER_PIG);
+    const feedConsumption = parseFloat(
+      Math.min(this.state.feedStock, totalPigs * this.FEED_PER_PIG).toFixed(2)
+    );
     this.state.feedConsumption = feedConsumption;
-    this.state.feedStock -= feedConsumption;
+    this.state.feedStock = parseFloat((this.state.feedStock - feedConsumption).toFixed(2));
     
     // 只有当饲料充足时，育肥猪才会成长
     if (feedConsumption >= totalPigs * this.FEED_PER_PIG) {
       // 计算育肥猪成长
       const newReadyPigs = Math.floor(this.state.fatteningPigs * 0.2); // 20%的育肥猪成长为可出栏猪
       if (newReadyPigs > 0) {
-        this.state.fatteningPigs -= newReadyPigs;
-        this.state.readyPigs += newReadyPigs;
+        this.state.fatteningPigs = parseFloat((this.state.fatteningPigs - newReadyPigs).toFixed(2));
+        this.state.readyPigs = parseFloat((this.state.readyPigs + newReadyPigs).toFixed(2));
       }
     }
   }

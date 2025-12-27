@@ -54,7 +54,9 @@ export class Market {
       (this.BASE_PIGLET_PRICE + (Math.random() * pigletPriceVariation * 2 - pigletPriceVariation)).toFixed(2)
     );
     // 确保仔猪价格在200-300之间
-    this.state.pigletPrice = Math.max(this.PIGLET_PRICE_MIN, Math.min(this.PIGLET_PRICE_MAX, newPigletPrice));
+    this.state.pigletPrice = parseFloat(
+      Math.max(this.PIGLET_PRICE_MIN, Math.min(this.PIGLET_PRICE_MAX, newPigletPrice)).toFixed(2)
+    );
   }
 
   // 获取当前市场摘要

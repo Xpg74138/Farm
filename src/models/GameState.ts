@@ -123,10 +123,10 @@ export class GameState {
       const farmerState = this.farmer.getState();
       this.farmer.setState({
         ...farmerState,
-        money: farmerState.money + effect.money,
-        feedStock: Math.max(0, farmerState.feedStock + effect.feedStock),
-        fatteningPigs: Math.max(0, farmerState.fatteningPigs + (effect.fatteningPigs || 0)),
-        readyPigs: Math.max(0, farmerState.readyPigs + (effect.readyPigs || 0))
+        money: parseFloat((farmerState.money + effect.money).toFixed(2)),
+        feedStock: parseFloat(Math.max(0, farmerState.feedStock + effect.feedStock).toFixed(2)),
+        fatteningPigs: parseFloat(Math.max(0, farmerState.fatteningPigs + (effect.fatteningPigs || 0)).toFixed(2)),
+        readyPigs: parseFloat(Math.max(0, farmerState.readyPigs + (effect.readyPigs || 0)).toFixed(2))
       });
     }
     
